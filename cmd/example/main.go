@@ -1,21 +1,28 @@
 package main
 
 import (
+	cv "github.com/nirasan/go-oauth-pkce-code-verifier"
 	"github.com/slaskawi/keycloak-cli-client-example/pkg/cli"
 	"log"
 )
 
 func main() {
 	cli.CloseApp.Add(1)
+	var CodeVerifier, _ = cv.CreateCodeVerifier()
+	codeChallenge := CodeVerifier.CodeChallengeS256()
+
 	config := cli.Config{
-		KeycloakConfig:       cli.KeycloakConfig{
+		KeycloakConfig: cli.KeycloakConfig{
 			KeycloakURL: "http://localhost:8080",
 			Realm:       "master",
 			ClientID:    "cli-example",
 		},
 		EmbeddedServerConfig: cli.EmbeddedServerConfig{
-			Port:         8081,
-			CallbackPath: "sso-callback",
+			Port:                8081,
+			CallbackPath:        "sso-callback",
+			CodeChallengeMethod: "S256",
+			CodeChallenge:       codeChallenge,
+			CodeVerifier:        CodeVerifier,
 		},
 	}
 

@@ -15,8 +15,9 @@ func StartServer(config Config) {
 
 	http.HandleFunc("/sso-callback", func(w http.ResponseWriter, r *http.Request) {
 		code := r.URL.Query().Get("code")
+		codeVerifier := config.EmbeddedServerConfig.CodeVerifier.String()
 		if code != "" {
-			request, err := BuildTokenExchangeRequest(config, code)
+			request, err := BuildTokenExchangeRequest(config, code, codeVerifier)
 			if err == nil {
 				var resp *http.Response
 				var body []byte
@@ -49,7 +50,7 @@ func StartServer(config Config) {
 
 	go func() {
 		log.Print("Booting up the server")
-		if err := http.ListenAndServe(serverAddress , nil); err != nil {
+		if err := http.ListenAndServe(serverAddress, nil); err != nil {
 			log.Fatalf("Unable to start server: %v\n", err)
 			CloseApp.Done()
 		}
